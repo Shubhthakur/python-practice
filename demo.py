@@ -45,3 +45,14 @@ def check_size_and_header(response, header):
         return True
     else:
         return False
+
+    
+    
+def check_invoice_month(invoice_date, date_format, diff_value):
+    current_month = datetime.now().strftime("%m")
+    invoice_dt = datetime.strptime(invoice_date, date_format)
+    invoice_month = invoice_dt.strftime("%m")
+    if(current_month-invoice_month == diff_value):
+        print()
+    else:
+        print()
