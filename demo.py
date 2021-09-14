@@ -56,3 +56,20 @@ def check_invoice_month(invoice_date, date_format, diff_value):
         print()
     else:
         print()
+
+        
+def check_file_name(file_prefix, extension, date_format):
+    file_name = file_prefix + extension
+    ext = file_name[-len(extension):]
+    if(ext != extension):
+        print("Error")
+        return False
+    current_date = datetime.now().strftime(date_format)
+    date_len = len(dt) + len(extension)
+    file_date = file_name[-date_len:-len(extension)]
+    file_dt = datetime.strptime(file_date, date_format)
+    delta = timedelta(hours=23, minutes=59, seconds=59)
+    if(datetime.strptime(current_date, date_format)-file_dt < delta):
+        return True
+    else:
+        return False
