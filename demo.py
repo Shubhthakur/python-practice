@@ -1,3 +1,8 @@
+from datetime import datetime
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+
+'''
 import boto3
 import time
 import sys
@@ -13,63 +18,15 @@ import pyspark.sql.utils
 from botocore.exceptions import ClientError
 from io import BytesIO
 import gzip
+'''
+
+sc = SparkContext()
+glueContext = GlueContext(sc)
+arg_SRC_DB_NAME = 'db-mocked-data-master'
+arg_SRC_TABLE_NAME = 'manufacturer_otr'
 
 
-def check_file_availablity(bucket, key):
-    try:
-        response = client.get_object(Bucket=bucket, Key=key)
-        if(response['ResponseMetadata']['HTTPStatusCode'] == 200):
-            return response['Body']
-        else:
-            print('Log:')
-            return False
-    except ClientError as ex:
-        if(ex.response['Error']['Code'] == 'NoSuchKey'):
-            print('Log: No object found')
-            return False
-        
-def check_size_and_header(response, header):
-    bytes_io = BytesIO(response.read())
-    data = gzip.GzipFile(fileobj=bytes_io)
-    content = data.read().decode('utf-8')
-    if(content[-1]=='\n'):
-        content = content[:-1]
-    rows = content.split('\n')
-    if(len(rows)>1):
-        print('log: success')
-    else:
-        print('log: fail')
-        return False
-    head_row = rows[0].replace(',','|')
-    if(head_row == header):
-        return True
-    else:
-        return False
-
-    
-    
-def check_invoice_month(invoice_date, date_format, diff_value):
-    current_month = datetime.now().strftime("%m")
-    invoice_dt = datetime.strptime(invoice_date, date_format)
-    invoice_month = invoice_dt.strftime("%m")
-    if(current_month-invoice_month == diff_value):
-        print()
-    else:
-        print()
-
-        
-def check_file_name(file_prefix, extension, date_format):
-    file_name = file_prefix + extension
-    ext = file_name[-len(extension):]
-    if(ext != extension):
-        print("Error")
-        return False
-    current_date = datetime.now().strftime(date_format)
-    date_len = len(dt) + len(extension)
-    file_date = file_name[-date_len:-len(extension)]
-    file_dt = datetime.strptime(file_date, date_format)
-    delta = timedelta(hours=23, minutes=59, seconds=59)
-    if(datetime.strptime(current_date, date_format)-file_dt < delta):
-        return True
-    else:
-        return False
+df = glueContext.create_dynamic_frame.from_catalog(database = arg_SRC_DB_NAME, table_name = arg_SRC_TABLE_NAME).toDF()
+print("Data frame size : ", df.count())
+print("Data frame Columns : ", df.columns)
+df.printSchema()
